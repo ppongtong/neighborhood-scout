@@ -14,6 +14,9 @@ Neighborhood Scout is a dual-interface agent designed to help users evaluate nei
 ## 🖥️ Web Interface
 ![Neighborhood Scout Web Result](docs/images/web-scout-result.png)
 
+## 📟 CLI Interface
+![Neighborhood Scout CLI Result](docs/images/cli-screenshot.png)
+
 ## 🛠️ Getting Started
 
 ### Prerequisites
