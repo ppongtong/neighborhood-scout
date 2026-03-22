@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { handleToolCall, getAffordability } from './index';
+import { handleToolCall, getAffordability } from './index.js';
 
 describe('getAffordability', () => {
   it('should return Highly Affordable for low rent-to-budget ratios', () => {

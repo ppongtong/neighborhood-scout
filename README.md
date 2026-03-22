@@ -2,7 +2,7 @@
 
 Evaluating neighborhoods with state-of-the-art AI. Built using the **Gemini @google/genai SDK**.
 
-Neighborhood Scout is a dual-interface agent designed to help users evaluate neighborhoods. It leverages the official **`@google/genai`** SDK to orchestrate multi-tool grounding and context circulation server-side via the **Interactions API**.
+Neighborhood Scout is a dual-interface agent designed to help users evaluate neighborhoods. It leverages the official **`@google/genai`** SDK to orchestrate multi-tool grounding and context circulation server-side via the [**Interactions API**](https://ai.google.dev/gemini-api/docs/interactions?ua=chat).
 
 ## 🚀 Features
 
@@ -39,11 +39,17 @@ Neighborhood Scout is a dual-interface agent designed to help users evaluate nei
     npm run build
     ```
 
-### How to Run
-
 | Interface | Command | Description |
 | :--- | :--- | :--- |
 | **CLI** | `npm start` | Fast, terminal-based scouting. |
 | **Web** | `npm run dev:web` | Starts Backend (3001) and Frontend (5173). |
+| **Tests** | `npm test` | Runs unit tests using Vitest. |
 
 ---
+
+## 🧪 Testing
+
+Neighborhood Scout uses **Vitest** for high-performance unit testing of core tool logic.
+
+- **Run tests**: `npm test`
+- **Coverage**: Focuses on affordability calculations, budget fit scoring, and tool request orchestration.
