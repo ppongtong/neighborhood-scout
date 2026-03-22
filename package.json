@@ -1,0 +1,28 @@
+{
+  "name": "neighborhood-scount",
+  "version": "1.0.0",
+  "description": "Neighborhood evaluation agent using Gemini 3 Interactions API.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^1.46.0",
+    "chalk": "^5.3.0",
+    "dotenv": "^16.4.5",
+    "inquirer": "^9.2.22"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.14.2",
+    "tsx": "^4.15.1",
+    "typescript": "^5.4.5"
+  }
+}
