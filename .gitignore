@@ -5,4 +5,7 @@ dist
 .DS_Store
 .agents
 .agent
+.claude
 brain
+skills-lock.json
+skills
