@@ -7,6 +7,37 @@ import { functionDeclarations, handleToolCall } from "./tools/index.js";
 const API_KEY = process.env.GOOGLE_API_KEY || "";
 const MODEL = "gemini-3-flash-preview";
 
+class Spinner {
+  private timer: NodeJS.Timeout | null = null;
+  private frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+  private currentFrame = 0;
+
+  constructor(private message: string) {}
+
+  start() {
+    process.stdout.write(chalk.yellow(`${this.frames[this.currentFrame]} ${this.message}`));
+    this.timer = setInterval(() => {
+      process.stdout.write("\r");
+      this.currentFrame = (this.currentFrame + 1) % this.frames.length;
+      process.stdout.write(chalk.yellow(`${this.frames[this.currentFrame]} ${this.message}`));
+    }, 80);
+  }
+
+  stop() {
+    if (this.timer) {
+      clearInterval(this.timer);
+      this.timer = null;
+    }
+    process.stdout.write("\r" + " ".repeat(this.message.length + 2) + "\r");
+  }
+
+  updateMessage(newMessage: string) {
+    this.stop();
+    this.message = newMessage;
+    this.start();
+  }
+}
+
 async function main() {
   if (!API_KEY) {
     console.error(chalk.red("Error: GOOGLE_API_KEY is not set in .env"));
@@ -57,7 +88,8 @@ async function main() {
         continue;
       }
 
-      process.stdout.write(chalk.yellow("🔍 Scouting... "));
+      const spinner = new Spinner("Scouting...");
+      spinner.start();
 
       try {
         let currentResult;
@@ -77,10 +109,11 @@ async function main() {
 
         // Official stateful tool handling loop
         while (currentResult.status === "requires_action") {
+          spinner.stop(); // Stop during tool logs
           const outputs = currentResult.outputs || [];
           const calls = outputs.filter((o: any) => o.type === "function_call");
 
-          if (calls.length === 0) break; // Should not happen if status is requires_action
+          if (calls.length === 0) break;
 
           const toolResults = [];
           for (const call of calls) {
@@ -95,14 +128,14 @@ async function main() {
             });
           }
 
-          process.stdout.write(chalk.yellow("\n🔍 Refining results... "));
+          spinner.updateMessage("Refining results...");
           currentResult = await api.sendToolResults({
             ...toolConfig,
             results: toolResults,
           });
         }
 
-        console.log("\r" + " ".repeat(30) + "\r"); // clear "Scouting..."
+        spinner.stop();
 
         // Extract and display all text blocks from outputs
         const textBlocks =
@@ -118,7 +151,7 @@ async function main() {
           );
         }
       } catch (err: any) {
-        console.log("\r" + " ".repeat(30) + "\r");
+        spinner.stop();
         console.error(chalk.red(`Error during interaction: ${err.message}\n`));
       }
     }
