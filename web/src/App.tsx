@@ -10,6 +10,8 @@ interface Message {
   text?: string;
 }
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -45,7 +47,7 @@ const App: React.FC = () => {
       let currentResult;
       const apiEndpoint = initialized ? '/api/message' : '/api/start';
 
-      const response = await fetch(`http://localhost:3001${apiEndpoint}`, {
+      const response = await fetch(`${API_BASE}${apiEndpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: userMessage.text }),
@@ -65,7 +67,7 @@ const App: React.FC = () => {
         for (const call of calls) {
           setStatusText(`Executing ${call.name}...`);
           
-          const toolResponse = await fetch('http://localhost:3001/api/execute-tool', {
+          const toolResponse = await fetch(`${API_BASE}/api/execute-tool`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: call.name, args: call.arguments }),
@@ -75,7 +77,7 @@ const App: React.FC = () => {
         }
 
         setStatusText('Refining results...');
-        const syncResponse = await fetch('http://localhost:3001/api/tool-results', {
+        const syncResponse = await fetch(`${API_BASE}/api/tool-results`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ results }),

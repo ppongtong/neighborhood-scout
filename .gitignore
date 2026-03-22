@@ -6,6 +6,7 @@ dist
 .agents
 .agent
 .claude
+.vscode
 brain
 skills-lock.json
 skills

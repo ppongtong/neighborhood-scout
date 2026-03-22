@@ -1,0 +1,32 @@
+services:
+  # Express backend
+  - type: web
+    name: neighborhood-scout-api
+    runtime: node
+    rootDir: .
+    buildCommand: npm install && npm run build
+    startCommand: npm run server
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false  # Set this manually in the Render dashboard
+      - key: CLIENT_URL
+        fromService:
+          name: neighborhood-scout-web
+          type: web
+          property: host
+          format: https://{host}
+
+  # React frontend
+  - type: web
+    name: neighborhood-scout-web
+    runtime: static
+    rootDir: web
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: neighborhood-scout-api
+          type: web
+          property: host
+          format: https://{host}
