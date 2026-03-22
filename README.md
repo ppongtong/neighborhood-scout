@@ -46,5 +46,24 @@ Neighborhood Scout is a TypeScript CLI agent designed to help users evaluate nei
 npm start
 ```
 
+### Example Output
+
+```text
+→ jersey city nj
+🔍 Scouting... 
+   [Executing generate_comparison_matrix...] 
+🔍 Refining results... 
+
+### Scout Report: Jersey City, NJ (2026 Edition)
+
+Jersey City has cemented its status as "New York’s Sixth Borough". With the FIFA World Cup 2026 fan festivals and major transit expansions, the city offers a high-energy alternative to Manhattan.
+
+1. Neighborhood Comparison Matrix
+- Paulus Hook: Safety 9, Transit 9, Affordability 3
+- Journal Square: Safety 6, Transit 10, Affordability 6
+- The Heights: Safety 7, Transit 5, Affordability 7
+...
+```
+
 ---
 Built by Neighborhood Scout.
