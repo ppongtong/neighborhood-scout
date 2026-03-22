@@ -6,20 +6,21 @@ Neighborhood Scout is a TypeScript CLI agent designed to help users evaluate nei
 
 ## 🚀 Features
 
--   **Combined Tool Grounding**: Seamlessly integrates **Google Maps**, **Google Search**, and **Custom Functions** in a single API request.
--   **Context Circulation**: Automatic data transfer between tools. Search results and Maps data flow directly into custom logic.
--   **Interactions API**: Server-side state management using the `interactions.create` flow.
+- **Combined Tool Grounding**: Seamlessly integrates **Google Maps**, **Google Search**, and **Custom Functions** in a single API request.
+- **Context Circulation**: Automatic data transfer between tools. Search results and Maps data flow directly into custom logic.
+- **Interactions API**: Server-side state management using the `interactions.create` flow.
 
 ## 🛠️ Getting Started
 
 ### Prerequisites
 
--   Node.js (v18+)
--   A Google AI API Key (from [Google AI Studio](https://aistudio.google.com/)).
+- Node.js (v18+)
+- A Google AI API Key (from [Google AI Studio](https://aistudio.google.com/)).
 
 ### Installation
 
 1.  Clone the repository and install dependencies:
+
     ```bash
     git clone https://github.com/ppongtong/neighborhood-scout.git
     cd neighborhood-scout
@@ -27,6 +28,7 @@ Neighborhood Scout is a TypeScript CLI agent designed to help users evaluate nei
     ```
 
 2.  Configure your environment in a `.env` file:
+
     ```env
     # Use your API Key from Google AI Studio
     GOOGLE_API_KEY=your-api-key-here
@@ -50,9 +52,9 @@ npm start
 
 ```text
 → jersey city nj
-🔍 Scouting... 
-   [Executing generate_comparison_matrix...] 
-🔍 Refining results... 
+🔍 Scouting...
+   [Executing generate_comparison_matrix...]
+🔍 Refining results...
 
 ### Scout Report: Jersey City, NJ (2026 Edition)
 
@@ -66,4 +68,3 @@ Jersey City has cemented its status as "New York’s Sixth Borough". With the FI
 ```
 
 ---
-Built by Neighborhood Scout.
