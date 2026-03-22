@@ -21,6 +21,8 @@ Neighborhood Scout is a TypeScript CLI agent designed to help users evaluate nei
 
 1.  Clone the repository and install dependencies:
     ```bash
+    git clone https://github.com/ppongtong/neighborhood-scout.git
+    cd neighborhood-scout
     npm install
     ```
 
