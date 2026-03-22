@@ -10,7 +10,7 @@
     "server": "node dist/server.js",
     "dev": "tsx src/index.ts",
     "dev:web": "npm run build && (node dist/server.js & cd web && npm run dev)",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +29,7 @@
     "@types/inquirer": "^9.0.7",
     "@types/node": "^20.14.2",
     "tsx": "^4.15.1",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^4.1.0"
   }
 }
