@@ -113,6 +113,7 @@ body {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
   border-bottom-right-radius: 4px;
+  padding: 4px 1rem;
 }
 
 .message-agent {
@@ -226,6 +227,91 @@ body {
   height: 100%;
   background: #06b6d4;
   transition: width 1s ease-out;
+}
+
+/* Header icon */
+.scout-header-icon {
+  background: #3b82f6;
+  padding: 0.6rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+}
+
+/* Welcome screen */
+.welcome-screen {
+  text-align: center;
+  margin-top: 4rem;
+  color: #64748b;
+}
+
+.welcome-icon {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* Scouting status */
+.scouting-status {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin-left: 1rem;
+}
+
+/* Footer */
+.scout-footer {
+  margin-top: 0.5rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.scout-footer-text {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+}
+
+.scout-footer-dot {
+  color: rgba(148, 163, 184, 0.6);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.scout-footer-link {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+
+.scout-footer-link:hover {
+  color: #3b82f6;
+}
+
+.scout-footer-github {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  color: #94a3b8;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+
+.scout-footer-github:hover {
+  color: #3b82f6;
 }
 
 /* Markdown Styling */

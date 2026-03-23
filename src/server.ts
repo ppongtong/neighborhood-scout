@@ -14,15 +14,16 @@ const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 app.use(cors({ origin: CLIENT_URL }));
 app.use(express.json());
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many requests, please try again later." },
-});
-
-app.use("/api/", limiter);
+if (process.env.NODE_ENV === "production") {
+  const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: "Too many requests, please try again later." },
+  });
+  app.use("/api/", limiter);
+}
 
 const api = new InteractionsAPI(API_KEY);
 
