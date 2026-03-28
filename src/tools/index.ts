@@ -39,6 +39,41 @@ export const functionDeclarations = [
     },
   },
   {
+    name: "get_neighborhood_trends",
+    description:
+      "Returns 12 months of historical trend data for a neighborhood including rent, safety score, and walkability score. Use this when the user asks about trends, changes over time, or historical data for a neighborhood.",
+    parameters: {
+      type: "object",
+      properties: {
+        neighborhood: {
+          type: "string",
+          description: "The name of the neighborhood",
+        },
+        metrics: {
+          type: "array",
+          items: { type: "string", enum: ["rent", "safety", "walkability"] },
+          description: "Which metrics to include (defaults to all)",
+        },
+        trend_data: {
+          type: "array",
+          description:
+            "12 months of historical data points fetched from search. Each object contains a month label and available metric values.",
+          items: {
+            type: "object",
+            properties: {
+              month: { type: "string", description: "Month label, e.g. 'Mar 2025'" },
+              average_rent: { type: "number", description: "Average monthly rent in USD" },
+              safety: { type: "number", description: "Safety score 0–10" },
+              walkability: { type: "number", description: "Walkability score 0–10" },
+            },
+            required: ["month"],
+          },
+        },
+      },
+      required: ["neighborhood"],
+    },
+  },
+  {
     name: "generate_comparison_matrix",
     description:
       "Generates a comparison matrix between multiple neighborhoods across different metrics like safety, transit, and cost.",
@@ -94,6 +129,23 @@ export async function handleToolCall(name: string, args: any) {
         status: "success",
         message: `${args.neighborhood} saved to favorites!`,
       };
+    case "get_neighborhood_trends": {
+      const { neighborhood, trend_data, metrics = ["rent", "safety", "walkability"] } = args;
+
+      if (!trend_data?.length) {
+        return { neighborhood, metrics, data: [] };
+      }
+
+      const data = trend_data.map((point: any) => {
+        const out: Record<string, any> = { month: point.month };
+        if (metrics.includes("rent") && point.average_rent != null) out.rent = point.average_rent;
+        if (metrics.includes("safety") && point.safety != null) out.safety = point.safety;
+        if (metrics.includes("walkability") && point.walkability != null) out.walkability = point.walkability;
+        return out;
+      });
+
+      return { neighborhood, metrics, data };
+    }
     case "generate_comparison_matrix":
       return { matrix: args.neighborhoods }; // The model will use this to generate the final response
     default:

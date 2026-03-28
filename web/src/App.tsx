@@ -2,12 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Map, Activity, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { A2UIRenderer } from './a2ui';
+import './a2ui/a2ui.css';
 
 // Types
 interface Message {
   id: string;
   role: 'user' | 'agent';
   text?: string;
+  a2uiMessages?: any[];
 }
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -52,24 +55,62 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [isScouting]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Run the tool loop on a result and return the final settled result
+  const runToolLoop = async (initialResult: any): Promise<any> => {
+    let currentResult = initialResult;
+    while (currentResult.status === 'requires_action') {
+      const calls = (currentResult.outputs || []).filter((o: any) => o.type === 'function_call');
+      if (calls.length === 0) break;
+
+      const results = [];
+      for (const call of calls) {
+        setStatusText(`Executing ${call.name}...`);
+        const toolResponse = await fetch(`${API_BASE}/api/execute-tool`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: call.name, args: call.arguments }),
+        });
+        const toolData = await toolResponse.json();
+        results.push({ name: call.name, id: call.id, result: toolData });
+      }
+
+      setStatusText('Refining results...');
+      const syncResponse = await fetch(`${API_BASE}/api/tool-results`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ results }),
+      });
+      currentResult = await syncResponse.json();
+    }
+    return currentResult;
+  };
+
+  // Add a settled API result to the messages list
+  const addAgentMessage = (result: any) => {
+    const parsed = result.parsed;
+    const responseText = parsed?.text || (result.outputs || []).filter((o: any) => o.type === 'text').map((b: any) => b.text).join('\n\n') || '';
+    const a2uiMessages = parsed?.a2uiMessages ?? null;
+    if (responseText || a2uiMessages) {
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'agent',
+        text: responseText || undefined,
+        a2uiMessages: a2uiMessages ?? undefined,
+      }]);
+    }
+  };
+
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!input.trim() || isScouting) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      text: input,
-    };
-
+    const userMessage: Message = { id: Date.now().toString(), role: 'user', text: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsScouting(true);
 
     try {
-      let currentResult;
       const apiEndpoint = initialized ? '/api/message' : '/api/start';
-
       const response = await fetch(`${API_BASE}${apiEndpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,53 +122,48 @@ const App: React.FC = () => {
         throw new Error(err.error || `Server error ${response.status}`);
       }
 
-      currentResult = await response.json();
       setInitialized(true);
-
-      // Handle official interaction turns recursively
-      while (currentResult.status === 'requires_action') {
-        const outputs = currentResult.outputs || [];
-        const calls = outputs.filter((o: any) => o.type === 'function_call');
-        
-        if (calls.length === 0) break;
-
-        const results = [];
-        for (const call of calls) {
-          setStatusText(`Executing ${call.name}...`);
-          
-          const toolResponse = await fetch(`${API_BASE}/api/execute-tool`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: call.name, args: call.arguments }),
-          });
-          const toolData = await toolResponse.json();
-          results.push({ name: call.name, id: call.id, result: toolData });
-        }
-
-        setStatusText('Refining results...');
-        const syncResponse = await fetch(`${API_BASE}/api/tool-results`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ results }),
-        });
-        currentResult = await syncResponse.json();
-      }
-
-      // Add agent response to chat
-      const textBlocks = currentResult.outputs?.filter((o: any) => o.type === 'text') || [];
-      const responseText = textBlocks.map((b: any) => b.text).join('\n\n');
-      if (responseText) {
-        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), role: 'agent', text: responseText }]);
-      }
+      const finalResult = await runToolLoop(await response.json());
+      addAgentMessage(finalResult);
 
     } catch (error: any) {
       console.error(error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
         role: 'agent',
         text: `Error: ${error.message}. Is the backend running?`,
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      }]);
+    } finally {
+      setIsScouting(false);
+      setStatusText('');
+    }
+  };
+
+  const handleA2UIAction = async (action: { name: string; context: any }) => {
+    if (isScouting) return;
+    setIsScouting(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/user-action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `Server error ${response.status}`);
+      }
+
+      const finalResult = await runToolLoop(await response.json());
+      addAgentMessage(finalResult);
+
+    } catch (error: any) {
+      console.error(error);
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'agent',
+        text: `Error: ${error.message}`,
+      }]);
     } finally {
       setIsScouting(false);
       setStatusText('');
@@ -165,16 +201,24 @@ const App: React.FC = () => {
               </motion.div>
             )}
             
-            {messages.filter(m => m.text).map((m) => (
+            {messages.filter(m => m.text || m.a2uiMessages).map((m) => (
               <motion.div
                 key={m.id}
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 className={`message-bubble message-${m.role}`}
               >
-                <div className="markdown-content">
-                  <ReactMarkdown>{m.text!}</ReactMarkdown>
-                </div>
+                {m.text && (
+                  <div className="markdown-content">
+                    <ReactMarkdown>{m.text}</ReactMarkdown>
+                  </div>
+                )}
+                {m.a2uiMessages && (
+                  <A2UIRenderer
+                    messages={m.a2uiMessages}
+                    onAction={handleA2UIAction}
+                  />
+                )}
               </motion.div>
             ))}
             
@@ -229,6 +273,15 @@ const App: React.FC = () => {
               className="scout-footer-link"
             >
               Gemini Interactions API
+            </a>
+            {' '}+{' '}
+            <a
+              href="https://a2ui.org/specification/v0.9-a2ui/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="scout-footer-link"
+            >
+              A2UI
             </a>
           </span>
           <span className="scout-footer-dot">·</span>
